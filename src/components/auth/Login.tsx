@@ -1,10 +1,15 @@
 import React, { useState } from "react";
+import { login } from "../../redux/features/auth";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
 
 const LoginScreen = () => {
   const [loginCredentials, setLoginCredentials] = useState<{
     email: string;
     password: string;
   }>({ email: "", password: "" });
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleCredentialChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -16,9 +21,21 @@ const LoginScreen = () => {
     }));
   };
 
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // Handle login logic here
+    try {
+      await dispatch(
+        login({
+          email: loginCredentials.email,
+          password: loginCredentials.password,
+        })
+      ); // Assuming login is a function that handles authentication
+      navigate("/dashboard"); // Navigate to protected route on success
+    } catch (error) {
+      console.error("Login failed:", error);
+      // Handle login error (show error message to user, etc.)
+    }
   };
 
   return (
@@ -50,18 +67,5 @@ const LoginScreen = () => {
     </div>
   );
 };
-
-// const App = () => {
-//   const [isLoginView, setIsLoginView] = useState(true);
-
-//   return (
-//     <div className="app">
-//       {isLoginView ? <LoginScreen /> : <SignupScreen />}
-//       <button onClick={() => setIsLoginView(!isLoginView)}>
-//         {isLoginView ? 'Switch to Signup' : 'Switch to Login'}
-//       </button>
-//     </div>
-//   );
-// };
 
 export default LoginScreen;
