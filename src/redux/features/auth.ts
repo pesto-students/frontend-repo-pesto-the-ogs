@@ -17,10 +17,10 @@ export const login = createAsyncThunk<
 >("auth/login", async (userData: ILoginPayload, { rejectWithValue }) => {
   try {
     const response = await axios.post<IAuthSuccessResponse>(
-      "http://localhost:5000/login",
+      "http://localhost:5001/login",
       userData
     );
-    localStorage.setItem("token", response.data.token);
+    // localStorage.setItem("token", response.data.token);
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue({
@@ -48,7 +48,7 @@ export const logout = createAsyncThunk<
 
 const initialState: IAuthState = {
   user: null,
-  token: localStorage.getItem("token") || null,
+  //   token: localStorage.getItem("token") || null,
   status: AsyncTaskStatusEnum.Idle, // 'idle', 'loading', 'succeeded', 'failed'
   error: null,
 };
@@ -62,7 +62,7 @@ export const authSlice = createSlice({
     },
     clearAuthState(state) {
       state.user = null;
-      state.token = null;
+      //   state.token = null;
       state.status = AsyncTaskStatusEnum.Idle;
       state.error = null;
     },
@@ -77,7 +77,7 @@ export const authSlice = createSlice({
         (state, action: PayloadAction<IAuthSuccessResponse>) => {
           state.status = AsyncTaskStatusEnum.Succeeded;
           state.user = action.payload.user;
-          state.token = action.payload.token;
+          //   state.token = action.payload.token;
         }
       )
       .addCase(
@@ -86,12 +86,12 @@ export const authSlice = createSlice({
           state.status = AsyncTaskStatusEnum.Failed;
           state.error = action.payload?.errorMessage || "Unknown Error";
           state.user = null;
-          state.token = null;
+          //   state.token = null;
         }
       )
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
-        state.token = null;
+        // state.token = null;
         state.status = AsyncTaskStatusEnum.Idle;
       });
   },

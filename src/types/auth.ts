@@ -10,7 +10,7 @@ export interface IUser {
 // type for initial state for auth slice in reducer
 export interface IAuthState {
   user: IUser | null;
-  token: string | null;
+  // token: string | null;
   status: AsyncTaskStatusEnum;
   error: string | null | undefined;
 }
