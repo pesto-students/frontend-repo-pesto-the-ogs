@@ -2,7 +2,7 @@ import { AsyncTaskStatusEnum } from "../constants/asyncTask";
 
 // Types for User and Auth state
 export interface IUser {
-  id: number;
+  id: number | null;
   username: string;
   email: string;
 }
@@ -10,7 +10,6 @@ export interface IUser {
 // type for initial state for auth slice in reducer
 export interface IAuthState {
   user: IUser | null;
-  // token: string | null;
   status: AsyncTaskStatusEnum;
   error: string | null | undefined;
 }
@@ -34,9 +33,4 @@ export interface IAuthFailureResponse {
     };
     status: number;
   };
-}
-
-export interface ILoginError {
-  errorMessage: string;
-  errorCode: number;
 }

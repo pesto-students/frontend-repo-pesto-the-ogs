@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { login } from "../../redux/features/auth";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
 const LoginScreen = () => {
   const [loginCredentials, setLoginCredentials] = useState<{
@@ -10,6 +10,13 @@ const LoginScreen = () => {
   }>({ email: "", password: "" });
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const auth = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (auth.user?.email) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const handleCredentialChange = (
     event: React.ChangeEvent<HTMLInputElement>,

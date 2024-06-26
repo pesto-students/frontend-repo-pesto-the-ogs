@@ -3,31 +3,32 @@ import axios from "axios";
 import {
   IAuthSuccessResponse,
   IAuthState,
-  ILoginError,
   ILoginPayload,
   IUser,
-  IAuthFailureResponse,
 } from "../../types/auth";
 import { AsyncTaskStatusEnum } from "../../constants/asyncTask";
+import { IApiFailureResponse } from "../../types/common";
 
 export const login = createAsyncThunk<
   IAuthSuccessResponse,
   ILoginPayload,
-  { rejectValue: ILoginError }
+  { rejectValue: IApiFailureResponse }
 >("auth/login", async (userData: ILoginPayload, { rejectWithValue }) => {
   try {
     const response = await axios.post<IAuthSuccessResponse>(
-      "http://localhost:5001/login",
-      userData
+      "http://localhost:5000/login",
+      userData,
+      {
+        withCredentials: true,
+      }
     );
     // localStorage.setItem("token", response.data.token);
     return response.data;
   } catch (error: unknown) {
     return rejectWithValue({
       errorMessage:
-        (error as IAuthFailureResponse).response?.data.message ||
-        "Unknown error",
-      errorCode: (error as IAuthFailureResponse).response.status,
+        (error as IApiFailureResponse).errorMessage || "Unknown error",
+      errorCode: (error as IApiFailureResponse).errorCode,
     });
   }
 });
@@ -58,7 +59,14 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<IUser | null>) {
+      console.log("SET USER PAYLOAD", action);
       state.user = action.payload;
+    },
+    "refresh/pending": (state) => {
+      state.status = AsyncTaskStatusEnum.Loading;
+    },
+    "refresh/fulfilled": (state) => {
+      state.status = AsyncTaskStatusEnum.Succeeded;
     },
     clearAuthState(state) {
       state.user = null;
@@ -77,21 +85,18 @@ export const authSlice = createSlice({
         (state, action: PayloadAction<IAuthSuccessResponse>) => {
           state.status = AsyncTaskStatusEnum.Succeeded;
           state.user = action.payload.user;
-          //   state.token = action.payload.token;
         }
       )
       .addCase(
         login.rejected,
-        (state, action: PayloadAction<ILoginError | undefined>) => {
+        (state, action: PayloadAction<IApiFailureResponse | undefined>) => {
           state.status = AsyncTaskStatusEnum.Failed;
           state.error = action.payload?.errorMessage || "Unknown Error";
           state.user = null;
-          //   state.token = null;
         }
       )
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
-        // state.token = null;
         state.status = AsyncTaskStatusEnum.Idle;
       });
   },
